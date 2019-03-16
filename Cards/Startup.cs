@@ -18,6 +18,7 @@ using Saga;
 using Saga.IntegrationEventLogEF;
 using Swashbuckle.AspNetCore.Swagger;
 using Autofac.Extensions.DependencyInjection;
+using Saga.Events;
 
 namespace Cards
 {
@@ -38,8 +39,8 @@ namespace Cards
 
             services.AddCustomDbContext(Configuration)
                     .AddIntegrationServices(Configuration)
-                    .AddCustomOptions(Configuration)
-                    .AddEventBus(Configuration);
+                    .AddCustomOptions(Configuration);
+                    
 
             if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
@@ -53,7 +54,8 @@ namespace Cards
                     return new DefaultServiceBusPersisterConnection(serviceBusConnection, logger);
                 });
             }
-            
+            RegisterEventBus(services);
+            // services.AddEventBus(Configuration);
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "My API", Version = "v1" });
@@ -66,6 +68,30 @@ namespace Cards
 
             return new AutofacServiceProvider(container.Build());
 
+        }
+
+        private void RegisterEventBus(IServiceCollection services)
+        {
+            var subscriptionClientName = Configuration["SubscriptionClientName"];
+
+            if (Configuration.GetValue<bool>("AzureServiceBusEnabled"))
+            {
+                services.AddSingleton<IEventBus, EventBusServiceBus>(sp =>
+                {
+                    var serviceBusPersisterConnection = sp.GetRequiredService<IServiceBusPersisterConnection>();
+                    var iLifetimeScope = sp.GetRequiredService<ILifetimeScope>();
+                    var logger = sp.GetRequiredService<ILogger<EventBusServiceBus>>();
+                    var eventBusSubcriptionsManager = sp.GetRequiredService<IEventBusSubscriptionsManager>();
+
+                    return new EventBusServiceBus(serviceBusPersisterConnection, logger,
+                        eventBusSubcriptionsManager, subscriptionClientName, iLifetimeScope);
+                });
+            }
+         
+            services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
+            services.AddTransient<CardsOrderRequestIntegrationSuccessEventHandler>();
+
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -90,6 +116,16 @@ namespace Cards
 
 
             app.UseMvc();
+            ConfigureEventBus(app);
+
+        }
+
+        private void ConfigureEventBus(IApplicationBuilder app)
+        {
+            var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
+
+            eventBus.Subscribe<CardOrderRequestIntegrationSuccessEventIntegrationEvent, CardsOrderRequestIntegrationSuccessEventHandler>();
+
         }
     }
 
@@ -101,6 +137,8 @@ namespace Cards
                 sp => (DbConnection c) => new IntegrationEventLogService(c));
 
             services.AddTransient<ICardsIntegrationEventService, CardsIntegrationEventService>();
+            services.AddTransient<ICardsIntegraionEventStatusService, CardsIntegrationEventStatusService>();
+
 
             if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
@@ -194,6 +232,7 @@ namespace Cards
                 });
             }
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
+            services.AddTransient<CardsOrderRequestIntegrationSuccessEventHandler>();
 
             return services;
         }

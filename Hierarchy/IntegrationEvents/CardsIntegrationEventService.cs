@@ -28,7 +28,7 @@ namespace Hierarchy.IntegrationEvents
 
 
 
-        public async Task PublishFailedThroughEventBusAsync(IntegrationEvent evt)
+        public async Task PublishThroughEventBusAsync(IntegrationEvent evt)
         {
             try
             {
@@ -53,6 +53,7 @@ namespace Hierarchy.IntegrationEvents
                      await _hierarchyContext.SaveChangesAsync();
                      await _eventLogService.SaveEventAsync(evt, _hierarchyContext.Database.CurrentTransaction.GetDbTransaction());
                 });
+            //send event message CardOrderRequestIntegrationSuccessEventIntegrationEvent
         }
     }
 

@@ -48,6 +48,7 @@ namespace Cards.Controllers
                     CorrelationId = obj.Correlationid,
                     CompanyName = obj.CompanyName,
                     CardHolderName = obj.CardHolderName,
+                    TransactionStatus =(int) TransactionStatusEnum.Inserted
                 };
 
                 _cardsContext.Cards.Add(item);

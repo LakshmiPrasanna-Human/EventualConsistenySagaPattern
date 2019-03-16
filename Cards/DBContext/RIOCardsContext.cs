@@ -57,21 +57,15 @@ namespace Cards.DBContext
             {
                 entity.Property(e => e.Id).HasColumnName("id");
 
-                entity.Property(e => e.Content)
+                entity.Property(e => e.Content).IsUnicode(false);
+
+                entity.Property(e => e.CorrelationId)
+                    .IsRequired()
+                    .HasColumnName("CorrelationID")
                     .HasMaxLength(100)
                     .IsUnicode(false);
 
                 entity.Property(e => e.CreationTime).HasColumnType("datetime");
-
-                entity.Property(e => e.state)
-                    .HasColumnName("State")
-                    .HasMaxLength(50)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.EventId)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
 
                 entity.Property(e => e.EventTypeName)
                     .HasMaxLength(50)
@@ -83,5 +77,4 @@ namespace Cards.DBContext
             });
         }
     }
-   
 }

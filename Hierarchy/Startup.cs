@@ -160,6 +160,7 @@ namespace Hierarchy
                 sp => (DbConnection c) => new IntegrationEventLogService(c));
 
             services.AddTransient<ICardsIntegrationEventService, CardsIntegrationEventService>();
+            services.AddTransient<ICardsIntegrationEventStatusService, CardsIntegrationSuccessEventService>();
 
             if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {

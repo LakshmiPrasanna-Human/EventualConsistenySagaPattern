@@ -9,6 +9,8 @@ namespace Saga.IntegrationEventLogEF
         NotPublished = 0,
         InProgress = 1,
         Published = 2,
-        PublishedFailed = 3
+        PublishedFailed = 3,
+        Success= 4,
+        Failure= 5
     }
 }

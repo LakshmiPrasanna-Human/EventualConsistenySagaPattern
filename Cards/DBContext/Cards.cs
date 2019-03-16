@@ -10,5 +10,6 @@ namespace Cards.DBContext
         public string CompanyName { get; set; }
         public string CardHolderName { get; set; }
         public string CardId { get; set; }
+        public int? TransactionStatus { get; set; }
     }
 }

@@ -9,6 +9,6 @@ namespace Hierarchy.IntegrationEvents
     public interface ICardsIntegrationEventService
     {
         Task SaveEventAndCardsContextChangesAsync(IntegrationEvent evt);
-        Task PublishFailedThroughEventBusAsync(IntegrationEvent evt);
+        Task PublishThroughEventBusAsync(IntegrationEvent evt);
     }
 }

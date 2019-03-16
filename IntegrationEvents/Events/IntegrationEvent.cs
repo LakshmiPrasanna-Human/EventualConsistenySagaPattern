@@ -14,12 +14,16 @@ namespace Saga
         }
 
         [JsonConstructor]
-        public IntegrationEvent(Guid id, DateTime createDate)
+        public IntegrationEvent(Guid id, DateTime createDate, string correlationid)
         {
             Id = id;
             CreationDate = createDate;
+            CorrelationID = correlationid;
         }
 
+        [JsonProperty]
+        public string CorrelationID { get; set; }
+        
         [JsonProperty]
         public Guid Id { get; private set; }
 

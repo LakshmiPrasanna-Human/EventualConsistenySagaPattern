@@ -6,6 +6,8 @@ using Saga;
 using Saga.IntegrationEventLogEF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Cards.Helper;
+using System.Linq;
 
 namespace Cards.IntegrationEvents
 {
@@ -24,9 +26,7 @@ namespace Cards.IntegrationEvents
             _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
             _eventLogService = _integrationEventLogServiceFactory(_cardsContext.Database.GetDbConnection());
         }
-
-
-
+                
         public async Task PublishThroughEventBusAsync(IntegrationEvent evt)
         {
             try
@@ -34,9 +34,20 @@ namespace Cards.IntegrationEvents
                 await _eventLogService.MarkEventAsInProgressAsync(evt.Id);
                 _eventBus.Publish(evt);
                 await _eventLogService.MarkEventAsPublishedAsync(evt.Id);
+                
             }
             catch (Exception ex)
             {
+               
+                    var entity = _cardsContext.Cards.FirstOrDefault(item => item.CorrelationId == evt.CorrelationID);
+
+                    if (entity != null)
+                    {
+                    entity.TransactionStatus = (int)TransactionStatusEnum.RollBack;
+                    _cardsContext.Cards.Update(entity);
+                    _cardsContext.SaveChanges();
+                    }
+                
                 await _eventLogService.MarkEventAsFailedAsync(evt.Id);
             }
         }

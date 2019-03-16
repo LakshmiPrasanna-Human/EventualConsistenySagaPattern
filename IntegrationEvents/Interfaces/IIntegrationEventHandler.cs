@@ -9,6 +9,8 @@ namespace Saga
         where TIntegrationEvent : IntegrationEvent
     {
         Task Handle(TIntegrationEvent @event);
+
+        Task SuccessHandle(TIntegrationEvent @event);
     }
 
     public interface IIntegrationEventHandler

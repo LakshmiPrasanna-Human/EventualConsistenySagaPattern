@@ -9,7 +9,7 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    public  class EventBusServiceBus: IEventBus
+    public class EventBusServiceBus : IEventBus
     {
         private readonly IServiceBusPersisterConnection _serviceBusPersisterConnection;
         private readonly ILogger<EventBusServiceBus> _logger;
@@ -31,7 +31,7 @@
                 subscriptionClientName);
             _autofac = autofac;
 
-            // RemoveDefaultRule();
+        //     RemoveDefaultRule();
             RegisterSubscriptionClientMessageHandler();
         }
 
@@ -131,6 +131,7 @@
                     if (await ProcessEvent(eventName, messageData))
                     {
                         await _subscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
+                        await CallBackSuccess(eventName, messageData);
                     }
                 },
                new MessageHandlerOptions(ExceptionReceivedHandler) { MaxConcurrentCalls = 10, AutoComplete = false });
@@ -145,6 +146,39 @@
             Console.WriteLine($"- Entity Path: {context.EntityPath}");
             Console.WriteLine($"- Executing Action: {context.Action}");
             return Task.CompletedTask;
+        }
+
+        private async Task<bool> CallBackSuccess(string eventName,string  message)
+        {
+            var processed = false;
+            if (_subsManager.HasSubscriptionsForEvent(eventName))
+            {
+                using (var scope = _autofac.BeginLifetimeScope(AUTOFAC_SCOPE_NAME))
+                {
+                    var subscriptions = _subsManager.GetHandlersForEvent(eventName);
+                    foreach (var subscription in subscriptions)
+                    {
+                        if (subscription.IsDynamic)
+                        {
+                            var handler = scope.ResolveOptional(subscription.HandlerType) as IDynamicIntegrationEventHandler;
+                            if (handler == null) continue;
+                            dynamic eventData = JObject.Parse(message);
+                            await handler.Handle(eventData);
+                        }
+                        else
+                        {
+                            var handler = scope.ResolveOptional(subscription.HandlerType);
+                            if (handler == null) continue;
+                            var eventType = _subsManager.GetEventTypeByName(eventName);
+                            var integrationEvent = JsonConvert.DeserializeObject(message, eventType);
+                            var concreteType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
+                            await (Task)concreteType.GetMethod("SuccessHandle").Invoke(handler, new object[] { integrationEvent });
+                        }
+                    }
+                }
+                processed = true;
+            }
+            return processed;
         }
 
         private async Task<bool> ProcessEvent(string eventName, string message)

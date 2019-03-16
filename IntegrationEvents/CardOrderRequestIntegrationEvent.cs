@@ -8,7 +8,7 @@ namespace Saga
     {
         public string UserId { get; set; }
 
-        public string CorrelationID { get; set; }
+       // public string CorrelationID { get; set; }
 
         public string CompanyName { get; set; }
 

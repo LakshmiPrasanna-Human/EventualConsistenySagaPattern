@@ -19,6 +19,8 @@ namespace Saga.IntegrationEventLogEF
             Content = JsonConvert.SerializeObject(@event);
             State = EventStateEnum.NotPublished;
             TimesSent = 0;
+            CorrelationID = @event.CorrelationID;
+
         }
         public Guid EventId { get; private set; }
         public string EventTypeName { get; private set; }
@@ -30,6 +32,8 @@ namespace Saga.IntegrationEventLogEF
         public int TimesSent { get; set; }
         public DateTime CreationTime { get; private set; }
         public string Content { get; private set; }
+
+        public string CorrelationID { get; private set; }
 
         public IntegrationEventLogEntry DeserializeJsonContent(Type type)
         {

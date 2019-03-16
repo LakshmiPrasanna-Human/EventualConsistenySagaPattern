@@ -9,13 +9,14 @@ use [RIO.Cards]
 --);
 
 CREATE TABLE IntegrationEventLog (
-  id  INT  NOT NULL    IDENTITY    PRIMARY KEY,
-  EventId  VARCHAR(100)  NOT NULL,
-  EState  VARCHAR(50),
+id  INT  NOT NULL    IDENTITY    PRIMARY KEY,
+  CorrelationID VARCHAR(100)  NOT NULL,
+  EventId  uniqueidentifier  NOT NULL,
+  State  int,
   IntegrationEvent VARCHAR(50),
   TimesSent INT,
   CreationTime DateTime,
-  Content VARCHAR(100),
+  Content VARCHAR(MAX),
   EventTypeName VARCHAR(50),
 );
 

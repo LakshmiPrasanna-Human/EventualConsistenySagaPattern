@@ -71,6 +71,16 @@ namespace Saga.IntegrationEventLogEF
             return UpdateEventStatus(eventId, EventStateEnum.PublishedFailed);
         }
 
+        public Task MarkEventAsTransactionFailure(Guid eventId)
+        {
+            return UpdateEventStatus(eventId, EventStateEnum.Failure);
+        }
+        public Task MarkEventAsTransactionSuccess(Guid eventId)
+        {
+            return UpdateEventStatus(eventId, EventStateEnum.Success);
+        }
+
+
         private Task UpdateEventStatus(Guid eventId, EventStateEnum status)
         {
             var eventLogEntry = _integrationEventLogContext.IntegrationEventLogs.Single(ie => ie.EventId == eventId);

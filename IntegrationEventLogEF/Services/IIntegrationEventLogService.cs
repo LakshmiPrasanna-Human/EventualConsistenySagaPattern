@@ -14,5 +14,8 @@ namespace Saga.IntegrationEventLogEF
         Task MarkEventAsPublishedAsync(Guid eventId);
         Task MarkEventAsInProgressAsync(Guid eventId);
         Task MarkEventAsFailedAsync(Guid eventId);
+        Task MarkEventAsTransactionFailure(Guid eventId);
+        Task MarkEventAsTransactionSuccess(Guid eventId);
+
     }
 }
