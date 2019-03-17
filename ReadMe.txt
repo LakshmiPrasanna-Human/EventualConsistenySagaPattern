@@ -53,6 +53,6 @@ Transaction scope
 
 
 
-//Scaffold-DbContext "Server=.\SQLExpress;Database=SchoolDB;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models
+//Scaffold-DbContext "Server=.\HYDHTC135611L;Database=RIO.Hierarchy;Trusted_Connection=True;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir DBContext
 
 

@@ -90,8 +90,8 @@ namespace Cards
          
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
             services.AddTransient<CardsOrderRequestIntegrationSuccessEventHandler>();
+            services.AddTransient<CardsOrderRequestIntegrationFailureEventHandler>();
 
-           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -123,8 +123,8 @@ namespace Cards
         private void ConfigureEventBus(IApplicationBuilder app)
         {
             var eventBus = app.ApplicationServices.GetRequiredService<IEventBus>();
-
             eventBus.Subscribe<CardOrderRequestIntegrationSuccessEventIntegrationEvent, CardsOrderRequestIntegrationSuccessEventHandler>();
+            eventBus.Subscribe<CardOrderRequestIntegrationFailureEventIntegrationEvent, CardsOrderRequestIntegrationFailureEventHandler>();
 
         }
     }
@@ -138,8 +138,6 @@ namespace Cards
 
             services.AddTransient<ICardsIntegrationEventService, CardsIntegrationEventService>();
             services.AddTransient<ICardsIntegraionEventStatusService, CardsIntegrationEventStatusService>();
-
-
             if (configuration.GetValue<bool>("AzureServiceBusEnabled"))
             {
                 services.AddSingleton<IServiceBusPersisterConnection>(sp =>
@@ -152,8 +150,6 @@ namespace Cards
                     return new DefaultServiceBusPersisterConnection(serviceBusConnection, logger);
                 });
             }
-
-
             return services;
         }
 
@@ -233,7 +229,7 @@ namespace Cards
             }
             services.AddSingleton<IEventBusSubscriptionsManager, InMemoryEventBusSubscriptionsManager>();
             services.AddTransient<CardsOrderRequestIntegrationSuccessEventHandler>();
-
+            services.AddTransient<CardsOrderRequestIntegrationFailureEventHandler>();
             return services;
         }
 
@@ -260,9 +256,6 @@ namespace Cards
 
             return services;
         }
-
-
-
     }
 }
     

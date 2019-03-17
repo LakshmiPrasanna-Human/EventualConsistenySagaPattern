@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Hierarchy.DBContext
+namespace Cards.DBContext
 {
     public partial class RIOHierarchyContext : DbContext
     {

@@ -19,7 +19,7 @@ namespace Users.IntegrationEvents
         }
 
 
-        public async Task SuccessHandle(CardOrderRequestIntegrationSuccessEventIntegrationEvent @event)
+        public async Task CompletionHandle(CardOrderRequestIntegrationSuccessEventIntegrationEvent @event)
         {
             try
             {
@@ -62,8 +62,8 @@ namespace Users.IntegrationEvents
             catch (Exception ex)
             {
                 //handle Send Failure to Source Microservice. -- CardOrderRequestIntegartionFailureEvent
-                var cardorderrequestfailureEvent = new CardOrderRequestIntegrationFailureEvent("Failure", @event.CorrelationID);
-                await _cardsIntegrationEventStatusService.PublishThroughEventBus(cardorderrequestfailureEvent);
+              //  var cardorderrequestfailureEvent = new CardOrderRequestIntegrationFailureEvent("Failure", @event.CorrelationID);
+              //  await _cardsIntegrationEventStatusService.PublishThroughEventBus(cardorderrequestfailureEvent);
 
             }
 

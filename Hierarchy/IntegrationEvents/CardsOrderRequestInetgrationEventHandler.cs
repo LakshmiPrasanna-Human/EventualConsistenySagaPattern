@@ -23,21 +23,30 @@ namespace Hierarchy.IntegrationEvents
         }
 
 
-        public async Task SuccessHandle(CardOrderRequestIntegrationEvent @event)
+        public async Task CompletionHandle(CardOrderRequestIntegrationEvent @event)
         {
             try
             {
-                //handle CardsIntegrationSuccessEvent
-                var cardorderrequestsuccessEvent = new CardOrderRequestIntegrationSuccessEventIntegrationEvent("SUCCESS", @event.CorrelationID);
-                await _cardsIntegrationEventStatusService.PublishThroughEventBus(cardorderrequestsuccessEvent);
+                //handle CardsIntegrationSuccessEvent, if Correlation ID is present in Invoice and IntegrationEvent table, 
+                //it ensure success
 
+                if ((_hierarchyContext.Invoice.Any(o => o.CorrelationId == @event.CorrelationID))&&
+                    ((_hierarchyContext.IntegrationEventLog.Any(o => o.CorrelationId == @event.CorrelationID))))
+                {
+                    var cardorderrequestsuccessEvent = new CardOrderRequestIntegrationSuccessEventIntegrationEvent("SUCCESS", @event.CorrelationID);
+                    await _cardsIntegrationEventStatusService.PublishThroughEventBus(cardorderrequestsuccessEvent);
+                }
+                else
+                {
+                    var cardorderrequestsuccessEvent = new CardOrderRequestIntegrationFailureEventIntegrationEvent("FAILURE", @event.CorrelationID);
+                    await _cardsIntegrationEventStatusService.PublishThroughEventBus(cardorderrequestsuccessEvent);
+                }
+        
             }
             catch (Exception ex)
             {
 
             }
-
-                
         }
 
 
@@ -56,18 +65,10 @@ namespace Hierarchy.IntegrationEvents
                 _hierarchyContext.Invoice.Add(item);
                 var cardorderrequestEvent = new CardOrderRequestIntegrationEvent(@event.UserId, @event.CorrelationID, @event.CompanyName, @event.CardHolderName);
                 await _cardsIntegrationEventService.SaveEventAndCardsContextChangesAsync(cardorderrequestEvent);
-
-                //handle CardsIntegrationSuccessEvent
-             //   var cardorderrequestsuccessEvent = new CardOrderRequestIntegrationSuccessEventIntegrationEvent("SUCCESS", @event.CorrelationID);
-             //   await _cardsIntegrationEventStatusService.PublishThroughEventBus(cardorderrequestsuccessEvent);
-                
-
             }
             catch(Exception ex)
             {
-                //handle Send Failure to Source Microservice. -- CardOrderRequestIntegartionFailureEvent
-                var cardorderrequestfailureEvent = new CardOrderRequestIntegrationFailureEvent("Failure", @event.CorrelationID);
-                await _cardsIntegrationEventStatusService.PublishThroughEventBus(cardorderrequestfailureEvent);
+             
                
             }
 

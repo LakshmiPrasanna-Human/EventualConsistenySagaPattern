@@ -10,7 +10,7 @@ namespace Saga
     {
         Task Handle(TIntegrationEvent @event);
 
-        Task SuccessHandle(TIntegrationEvent @event);
+        Task CompletionHandle(TIntegrationEvent @event);
     }
 
     public interface IIntegrationEventHandler

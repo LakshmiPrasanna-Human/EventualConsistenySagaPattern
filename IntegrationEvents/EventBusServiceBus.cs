@@ -131,7 +131,7 @@
                     if (await ProcessEvent(eventName, messageData))
                     {
                         await _subscriptionClient.CompleteAsync(message.SystemProperties.LockToken);
-                        await CallBackSuccess(eventName, messageData);
+                        await CallBackCompletion(eventName, messageData);
                     }
                 },
                new MessageHandlerOptions(ExceptionReceivedHandler) { MaxConcurrentCalls = 10, AutoComplete = false });
@@ -148,7 +148,7 @@
             return Task.CompletedTask;
         }
 
-        private async Task<bool> CallBackSuccess(string eventName,string  message)
+        private async Task<bool> CallBackCompletion(string eventName,string  message)
         {
             var processed = false;
             if (_subsManager.HasSubscriptionsForEvent(eventName))
@@ -172,7 +172,7 @@
                             var eventType = _subsManager.GetEventTypeByName(eventName);
                             var integrationEvent = JsonConvert.DeserializeObject(message, eventType);
                             var concreteType = typeof(IIntegrationEventHandler<>).MakeGenericType(eventType);
-                            await (Task)concreteType.GetMethod("SuccessHandle").Invoke(handler, new object[] { integrationEvent });
+                            await (Task)concreteType.GetMethod("CompletionHandle").Invoke(handler, new object[] { integrationEvent });
                         }
                     }
                 }

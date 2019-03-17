@@ -138,7 +138,7 @@ namespace Users
             env.ConfigureNLog("nlog.config");
             loggerFactory.AddNLog();
             app.AddNLogWeb();
-            ConfigureEventBus(app);
+           // ConfigureEventBus(app);
         }
     }
 
